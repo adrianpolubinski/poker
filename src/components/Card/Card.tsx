@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 
@@ -23,11 +23,11 @@ const Div = styled.div<CardStyled>`
     position: relative;
     
     transform: ${(p:CardStyled) => p.isVisible ? 'rotateY(0deg);' : 'rotateY(180deg);'};
-    transition: transform 1s ease-in-out;
+    transition: transform .5s ease-in-out;
     
     & > div:first-child {
         opacity: ${(p: CardStyled) => p.isVisible && '0'};;
-        transition: opacity 0s .5s;
+        transition: opacity 0s .25s;
         position: absolute;
         left: 0;
         top: 0;
@@ -47,7 +47,7 @@ const Div = styled.div<CardStyled>`
 
     & > div:last-child {
         opacity: ${(p: CardStyled) => !p.isVisible && '0'};
-        transition: opacity 0s .5s;
+        transition: opacity 0s .25s;
         width: 100%;
         height: 100%;
         position: absolute;
@@ -72,11 +72,16 @@ const Div = styled.div<CardStyled>`
 interface CardProps {
     value: string,
     type: string,
+    visible?: boolean
 }
 
-function Card( {value, type }: CardProps ) {
+function Card( {value, type, visible }: CardProps ) {
 
-    const [isVisible, setIsVisible] = useState(true);
+    const [isVisible, setIsVisible] = useState(visible);
+
+    useEffect(()=>{
+        setIsVisible(visible);
+    },[visible])
 
     return (
         <Div isVisible={isVisible}>

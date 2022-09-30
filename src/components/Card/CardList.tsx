@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import styled from "styled-components";
 import BlankCard from './BlankCard';
 
@@ -5,53 +6,59 @@ import Card from "./Card";
 
 interface CardListStyled {
     cardCount?: number,
+    deck?:boolean
 }
 
 const Div = styled.div<CardListStyled>`
-    height: 15rem;
-    width: ${(p: CardListStyled) => ((p.cardCount === 0 ) && '25rem' ||
-                                    (p.cardCount === 2 ) && '25rem' || 
-                                    (p.cardCount === 3 ) && '35rem' || 
-                                    (p.cardCount === 4 )  && '45rem' ||
-                                    (p.cardCount === 5 ) && '55rem' ) };
-
+    min-height: 15rem;
     & > ul {
         display: flex;
-        height: 100%;
-        width: 100%;
     }
 
     & > ul > li {
         margin: 0 1rem;
-        width: 50%;
-        height: 100%;
+        width: ${(p: CardListStyled) => (
+                                        (p.deck && "10rem") || 
+                                        ((p.cardCount === 1 ) && '10rem') || "10rem")};
+        height: 15rem;
     }
     
 `
 
 interface CardListProps {
     cards: Array<{value: string, type: string}>,
+    visible?: boolean,
+    deck?: boolean,
+    blankCards?: number
 }
 
-function CardList({ cards}: CardListProps ) {
+function CardList({ cards, visible, deck, blankCards }: CardListProps ) {
     
     let cardElements: Array<JSX.Element> = [];
 
-    if(cards.length===0){
-        cardElements = [
-            <li key={0}>
-                <BlankCard />
-            </li>,
-            <li key={1}>
+    const [blank, setBlank] = useState(blankCards)
+    const [visibleList, setVisibleList] = useState(visible);
+
+    useEffect(()=>{
+        setBlank(blankCards)
+        setVisibleList(visible)
+    },[blankCards,visible])
+
+
+    if(blank){
+        for(let i=0; i< blank; i++){
+            cardElements.push(
+            <li key={i}>
                 <BlankCard />
             </li>
-        ]
+            )
+        }
 
     } else {
         cardElements = cards.map((card, index) => {
             return(
                 <li key={index}>
-                    <Card  value={card.value} type={card.type} />
+                    <Card  value={card.value} type={card.type} visible={visibleList}/>
                 </li>
             )  
         })
@@ -59,7 +66,7 @@ function CardList({ cards}: CardListProps ) {
     
 
     return (
-        <Div cardCount={cards.length} >
+        <Div cardCount={cards.length} deck={deck}>
             <ul>
                 {cardElements}
             </ul>
